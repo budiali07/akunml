@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Legends Account Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+        #result {
+            display: none;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            background-color: #e6f7ff;
+            border: 1px solid #b3d8ff;
+            color: #333;
+        }
+        #result.show {
+            display: block;
+        }
+        .result-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .result-content {
+            font-size: 16px;
+        }
+        .emoji {
+            font-size: 20px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mobile Legends Account Info</h1>
+        <form id="accountForm" onsubmit="event.preventDefault(); fetchData();">
+            <label for="userId">User ID:</label>
+            <input type="text" id="userId" name="userId" required>
+            <label for="zoneId">Zone ID:</label>
+            <input type="text" id="zoneId" name="zoneId" required>
+            <button type="submit">Cari Info Akun</button>
+        </form>
+
+        <div id="result">
+            <div class="result-header">🌟 Berikut Detail Umur Akun Kamu 🌟</div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const userId = document.getElementById('userId').value;
+            const zoneId = document.getElementById('zoneId').value;
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            
+            const apiUrl = `https://mlbb.casperproject.net/api/v1/check?userId=${userId}&zoneId=${zoneId}`;
+            
+            if (!userId || !zoneId) {
+                resultDiv.innerHTML = '<div class="result-header">Oops!</div>Harap masukkan User ID dan Zone ID.';
+                resultDiv.classList.add('show');
+                return;
+            }
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error('Jaringan tidak responsif.');
+                }
+
+                const data = await response.json();
+                const userData = data.data;
+
+                if (!userData) {
+                    resultDiv.innerHTML = '<div class="result-header">Data Tidak Ditemukan</div>Data untuk akun ini tidak ditemukan.';
+                    resultDiv.classList.add('show');
+                    return;
+                }
+
+                const message = `
+                    ❤️ Username: ${userData.username}<br>
+                    🌍 Negara Pembuatan Akun: ${userData.create_role_country}<br>
+                    🌍 Negara Login Saat Ini: ${userData.this_login_country}<br>
+                    📅 Waktu Registrasi: ${userData.user_reg_time}<br>
+                    ⏰ Akun Aktif: ${userData.user_reg_time_human} lalu
+                `;
+
+                resultContent.innerHTML = message;
+                resultDiv.classList.add('show');
+            } catch (error) {
+                console.error('Terjadi kesalahan:', error);
+                resultDiv.innerHTML = '<div class="result-header">Terjadi Kesalahan</div>Terjadi kesalahan saat memuat data.';
+                resultDiv.classList.add('show');
+            }
+        }
+    </script>
+</body>
+</html>
